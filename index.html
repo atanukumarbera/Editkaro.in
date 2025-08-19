@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Editkaro.in — Portfolio</title>
+  <style>
+    :root {
+      --bg: #0b0d10;
+      --card: #12161b;
+      --text: #e7edf3;
+      --muted: #a7b1bb;
+      --brand: #6be3ff;
+      --accent: #8b5cf6;
+      --ring: rgba(107, 227, 255, 0.35);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color: var(--text);
+      background: radial-gradient(1200px 800px at 80% -20%, rgba(139,92,246,.25), transparent 60%),
+                  radial-gradient(900px 600px at -10% 10%, rgba(107,227,255,.18), transparent 60%),
+                  var(--bg);
+    }
+    /* Header */
+    .shell { max-width: 1200px; margin: 0 auto; padding: 24px; }
+    header {
+      position: sticky; top: 0; z-index: 20;
+      backdrop-filter: saturate(140%) blur(10px);
+      background: linear-gradient(to bottom, rgba(11,13,16,.85), rgba(11,13,16,.55));
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+    .bar { display: flex; align-items: center; gap: 16px; }
+    .logo {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-weight: 800; letter-spacing: .4px; font-size: 20px;
+    }
+    .logo-badge {
+      width: 34px; height: 34px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--brand), var(--accent));
+      display: grid; place-items: center; color: #0b0d10; font-weight: 900;
+      box-shadow: 0 8px 26px rgba(107,227,255,.25), 0 8px 26px rgba(139,92,246,.2) inset;
+    }
+    .tagline { margin-left: auto; color: var(--muted); font-size: 13px; }
+
+    /* Filters */
+    .filters { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    .btn {
+      appearance: none; border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.03); color: var(--text);
+      padding: 8px 14px; border-radius: 999px; cursor: pointer; font-weight: 600; font-size: 14px;
+      transition: transform .08s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease;
+    }
+    .btn:hover { transform: translateY(-1px); border-color: rgba(255,255,255,.25); }
+    .btn.active { background: linear-gradient(135deg, rgba(107,227,255,.2), rgba(139,92,246,.15)); border-color: var(--brand); box-shadow: 0 0 0 4px var(--ring); }
+
+    /* Grid */
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin-top: 20px; }
+    .card {
+      position: relative; overflow: hidden; border-radius: 20px; background: var(--card);
+      border: 1px solid rgba(255,255,255,.06);
+      transition: transform .18s ease, box-shadow .18s ease, border-color .2s ease;
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+      isolation: isolate;
+    }
+    .card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,.18); box-shadow: 0 16px 44px rgba(0,0,0,.45); }
+    .thumb { position: relative; aspect-ratio: 16 / 9; background: #0e1115; overflow: hidden; }
+    .thumb video, .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .chip {
+      position: absolute; top: 10px; left: 10px; z-index: 2;
+      background: rgba(0,0,0,.6); border: 1px solid rgba(255,255,255,.18);
+      color: #eaf6ff; font-weight: 700; letter-spacing: .3px; font-size: 11px; text-transform: uppercase;
+      padding: 6px 10px; border-radius: 999px; backdrop-filter: blur(6px);
+    }
+    .play {
+      position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none;
+    }
+    .play span {
+      width: 58px; height: 58px; border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(255,255,255,.6));
+      box-shadow: 0 10px 25px rgba(0,0,0,.45);
+      display: grid; place-items: center; transform: scale(.96); opacity: .0; transition: opacity .2s ease, transform .2s ease;
+    }
+    .card:hover .play span { opacity: .95; transform: scale(1); }
+    .play svg { width: 22px; height: 22px; fill: #0b0d10; margin-left: 2px; }
+
+    .meta { padding: 12px 14px 14px; display: grid; gap: 6px; }
+    .title { font-weight: 800; font-size: 15px; line-height: 1.3; }
+    .sub { color: var(--muted); font-size: 13px; }
+
+    /* Lightbox */
+    .lightbox {
+      position: fixed; inset: 0; background: rgba(0,0,0,.75);
+      display: none; align-items: center; justify-content: center; padding: 20px; z-index: 50;
+      animation: fadeIn .15s ease;
+    }
+    .lightbox.open { display: flex; }
+    .modal { width: min(100%, 1000px); }
+    .modal video { width: 100%; height: auto; border-radius: 14px; box-shadow: 0 20px 60px rgba(0,0,0,.6); }
+    .close {
+      position: absolute; top: 16px; right: 16px; border: none; cursor: pointer; width: 40px; height: 40px; border-radius: 999px;
+      background: rgba(255,255,255,.12); color: white; font-size: 20px; display: grid; place-items: center; transition: background .2s ease;
+    }
+    .close:hover { background: rgba(255,255,255,.2); }
+
+    @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+
+    /* Responsive helpers */
+    @media (max-width: 560px) {
+      .tagline { display: none; }
+      .title { font-size: 14px; }
+      .sub { font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="shell">
+      <div class="bar">
+        <div class="logo" aria-label="Editkaro.in">
+          <div class="logo-badge" aria-hidden="true">EK</div>
+          <div>Editkaro<span style="color: var(--brand);">.in</span> — Portfolio</div>
+        </div>
+        <div class="tagline">Social Media Marketing & Video Editing</div>
+      </div>
+      <div class="filters" role="tablist" aria-label="Categories">
+        <button class="btn active" data-filter="all" role="tab" aria-selected="true">All</button>
+        <button class="btn" data-filter="short-form" role="tab">Short-form</button>
+        <button class="btn" data-filter="long-form" role="tab">Long-form</button>
+        <button class="btn" data-filter="gaming" role="tab">Gaming</button>
+        <button class="btn" data-filter="football" role="tab">Football</button>
+        <button class="btn" data-filter="ecommerce" role="tab">eCommerce Ads</button>
+        <button class="btn" data-filter="documentary" role="tab">Documentary</button>
+        <button class="btn" data-filter="color-grading" role="tab">Color Grading</button>
+        <button class="btn" data-filter="anime" role="tab">Anime</button>
+        <button class="btn" data-filter="ads" role="tab">Ads</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="grid" id="portfolio" aria-live="polite">
+      
+      <!-- Short-form -->
+      <article class="card" data-category="short-form">
+        <div class="thumb">
+          <span class="chip">Short-form</span>
+          <video preload="metadata" muted playsinline poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='360'%3E%3Crect width='100%25' height='100%25' fill='%2312161b'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23a7b1bb' font-size='20' font-family='Arial'%3EShort-form Teaser%3C/text%3E%3C/svg%3E">
+            <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4" type="video/mp4" />
+          </video>
+          <div class="play"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></div>
+        </div>
+        <div class="meta">
+          <div class="title">Snappy Reel Cut</div>
+          <div class="sub">15s social hook • Captions • Jump cuts</div>
+        </div>
+      </article>
+
+      <article class="card" data-category="short-form">
+        <div class="thumb">
+          <span class="chip">Short-form</span>
+          <video preload="metadata" muted playsinline poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='360'%3E%3Crect width='100%25' height='100%25' fill='%2312161b'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23a7b1bb' font-size='20' font-family='Arial'%3EReel Montage%3C/text%3E%3C/svg%3E">
+            <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4" type="video/mp4" />
+          </video>
+          <div class="play"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></div>
+        </div>
+        <div class="meta">
+          <div class="title">Product Hype Reel</div>
+          <div class="sub">Trendy transitions • Beat sync</div>
+        </div>
+      </article>
+
+      <!-- Long-form -->
+      <article class="card" data-category="long-form">
+        <div class="thumb">
+          <span class="chip">Long-form</span>
+          <video preload="metadata" muted playsinline poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='360'%3E%3Crect width='100%25' height='100%25' fill='%2312161b'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23a7b1bb' font-size='20' font-family='Arial'%3EDeep Dive%3C/text%3E%3C/svg%3E">
+            <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4" type="video/mp4" />
+          </video>
+          <div class="play"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></div>
+        </div>
+        <div class="meta">
+          <div class="title">Documented Narrative</div>
+          <div class="sub">Story-driven editing • Pacing & arcs</div>
+        </div>
+      </article>
+
+      <!-- Gaming -->
+      <article class="card" data-category="gaming">
+        <div class="thumb">
+          <span class="chip">Gaming</span>
+          <video preload="metadata" muted playsinline poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='360'%3E%3Crect width='100%25' height='100%25' fill='%2312161b'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23a7b1bb' font-size='20' font-family='Arial'%3EFrag Highlights%3C/text%3E%3C/svg%3E">
+            <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4" type="video/mp4" />
+          </video>
+          <div class="play"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></div>
+        </div>
+        <div class="meta">
+          <div class="title">Esports Highlight Cut</div>
+          <div class="sub">Killfeed crops • Velocity remaps</div>
+        </div>
+      </article>
+
+      <!-- Football -->
+      <article class="card" data-category="football">
+        <div class="thumb">
+          <span class="chip">Football</span>
+          <video preload="metadata" muted playsinline poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='360'%3E%3Crect width='100%25' height='100%25' fill='%2312161b'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23a7b1bb' font-size='20' font-family='Arial'%3EMatch Edit%3C/text%3E%3C/svg%3E">
+            <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4" type="video/mp4" />
+          </video>
+          <div class="play"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></div>
+        </div>
+        <div class="meta">
+          <div class="title">Matchday Recap</div>
+          <div class="sub">Score bugs • Crowd sweetening</div>
+        </div>
+      </article>
+
+      <!-- eCommerce Ads -->
+      <article class="card" data-category="ecommerce">
+        <div class="thumb">
+          <span class="chip">eCommerce</span>
+          <video preload="metadata" muted playsinline poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='360'%3E%3Crect width='100%25' height='100%25' fill='%2312161b'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23a7b1bb' font-size='20' font-family='Arial'%3EUGC Ad%3C/text%3E%3C/svg%3E">
+            <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4" />
+          </video>
+          <div class="play"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></div>
+        </div>
+        <div class="meta">
+          <div class="title">Scroll-stopper UGC</div>
+          <div class="sub">Hook • CTA • Social proof</div>
+        </div>
+      </article>
+
+      <!-- Documentary -->
+      <article class="card" data-category="documentary">
+        <div class="thumb">
+          <span class="chip">Documentary</span>
+          <video preload="metadata" muted playsinline poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='360'%3E%3Crect width='100%25' height='100%25' fill='%2312161b'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23a7b1bb' font-size='20' font-family='Arial'%3EMicro-doc%3C/text%3E%3C/svg%3E">
+            <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4" type="video/mp4" />
+          </video>
+          <div class="play"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></div>
+        </div>
+        <div class="meta">
+          <div class="title">Founder Story</div>
+          <div class="sub">Interviews • B-roll • Narrative arc</div>
+        </div>
+      </article>
+
+      <!-- Color Grading -->
+      <article class="card" data-category="color-grading">
+        <div class="thumb">
+          <span class="chip">Color Grading</span>
+          <video preload="metadata" muted playsinline poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='360'%3E%3Crect width='100%25' height='100%25' fill='%2312161b'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23a7b1bb' font-size='20' font-family='Arial'%3ELook Dev%3C/text%3E%3C/svg%3E">
+            <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4" type="video/mp4" />
+          </video>
+          <div class="play"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></div>
+        </div>
+        <div class="meta">
+          <div class="title">Cinematic LUT Pass</div>
+          <div class="sub">Skin-tone protection • Film emulation</div>
+        </div>
+      </article>
+
+      <!-- Anime -->
+      <article class="card" data-category="anime">
+        <div class="thumb">
+          <span class="chip">Anime</span>
+          <video preload="metadata" muted playsinline poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='360'%3E%3Crect width='100%25' height='100%25' fill='%2312161b'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23a7b1bb' font-size='20' font-family='Arial'%3EAMV Cut%3C/text%3E%3C/svg%3E">
+            <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4" type="video/mp4" />
+          </video>
+          <div class="play"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></div>
+        </div>
+        <div class="meta">
+          <div class="title">Anime Music Video</div>
+          <div class="sub">Sync • Motion typography • Impacts</div>
+        </div>
+      </article>
+
+      <!-- Ads (General) -->
+      <article class="card" data-category="ads">
+        <div class="thumb">
+          <span class="chip">Ads</span>
+          <video preload="metadata" muted playsinline poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='360'%3E%3Crect width='100%25' height='100%25' fill='%2312161b'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23a7b1bb' font-size='20' font-family='Arial'%3EAd Spot%3C/text%3E%3C/svg%3E">
+            <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" type="video/mp4" />
+          </video>
+          <div class="play"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></div>
+        </div>
+        <div class="meta">
+          <div class="title">30s Brand Spot</div>
+          <div class="sub">Messaging • Packshots • CTA</div>
+        </div>
+      </article>
+
+    </section>
+  </main>
+
+  <!-- Lightbox Modal -->
+  <div class="lightbox" id="lightbox" aria-modal="true" role="dialog" aria-label="Video player">
+    <button class="close" id="closeBtn" aria-label="Close">×</button>
+    <div class="modal">
+      <video id="lightboxVideo" controls playsinline></video>
+    </div>
+  </div>
+
+  <script>
+    // Hover preview (play/pause silently)
+    const cards = document.querySelectorAll('.card');
+    cards.forEach(card => {
+      const vid = card.querySelector('video');
+      card.addEventListener('mouseenter', () => { vid.currentTime = 0; vid.play().catch(()=>{}); });
+      card.addEventListener('mouseleave', () => { vid.pause(); });
+    });
+
+    // Filtering
+    const buttons = document.querySelectorAll('.btn');
+    const gridItems = document.querySelectorAll('.card');
+    buttons.forEach(btn => btn.addEventListener('click', () => {
+      buttons.forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
+      btn.classList.add('active'); btn.setAttribute('aria-selected', 'true');
+      const f = btn.dataset.filter;
+      gridItems.forEach(it => {
+        const show = (f === 'all') || it.dataset.category === f;
+        it.style.display = show ? '' : 'none';
+      });
+    }));
+
+    // Lightbox open/close
+    const lightbox = document.getElementById('lightbox');
+    const lightboxVideo = document.getElementById('lightboxVideo');
+    const closeBtn = document.getElementById('closeBtn');
+
+    function openLightbox(src) {
+      lightboxVideo.src = src; lightbox.classList.add('open');
+      lightboxVideo.play().catch(()=>{});
+      document.body.style.overflow = 'hidden';
+    }
+    function closeLightbox() {
+      lightboxVideo.pause(); lightboxVideo.removeAttribute('src'); lightbox.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    document.addEventListener('click', (e) => {
+      const card = e.target.closest('.card');
+      if (card) {
+        const src = card.querySelector('video source')?.src;
+        if (src) openLightbox(src);
+      }
+    });
+
+    closeBtn.addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && lightbox.classList.contains('open')) closeLightbox(); });
+  </script>
+</body>
+</html>
